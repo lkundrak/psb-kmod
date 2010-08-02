@@ -420,8 +420,22 @@ static int psbfb_set_par(struct fb_info *info)
 	fb->depth = depth;
 
 	info->fix.line_length = fb->pitch;
-	info->fix.visual =
-	    (fb->depth == 8) ? FB_VISUAL_PSEUDOCOLOR : FB_VISUAL_DIRECTCOLOR;
+
+	switch (fb->depth) {
+	case 8:
+		info->fix.visual = FB_VISUAL_PSEUDOCOLOR;
+		break;
+	case 15:
+	case 16:
+		info->fix.visual = FB_VISUAL_DIRECTCOLOR;
+		break;
+	case 24:
+	case 32:
+		info->fix.visual = FB_VISUAL_TRUECOLOR;
+		break;
+	default:
+		BUG();
+	}
 
 	/* some fbdev's apps don't want these to change */
 	info->fix.smem_start = dev->mode_config.fb_base + fb->offset;
@@ -990,8 +1004,13 @@ void psbfb_resume(struct drm_device *dev)
  * Also, these should be the default vm ops for buffer object type fbs.
  */
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,27))
+extern int drm_bo_vm_nopfn(struct vm_area_struct *vma,
+			   struct vm_fault *vmf );
+#else
 extern unsigned long drm_bo_vm_nopfn(struct vm_area_struct *vma,
 				     unsigned long address);
+#endif
 
 /*
  * This wrapper is a bit ugly and is here because we need access to a mutex
@@ -1001,6 +1020,7 @@ extern unsigned long drm_bo_vm_nopfn(struct vm_area_struct *vma,
  * recursive locking.
  */
 
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27))
 static unsigned long psbfb_nopfn(struct vm_area_struct *vma,
 				 unsigned long address)
 {
@@ -1015,7 +1035,7 @@ static unsigned long psbfb_nopfn(struct vm_area_struct *vma,
 	mutex_unlock(&vi->vm_mutex);
 	return ret;
 }
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,27))
+#else
 static int psbfb_fault(struct vm_area_struct *vma,
 				 struct vm_fault *vmf)
 {
@@ -1023,12 +1043,10 @@ static int psbfb_fault(struct vm_area_struct *vma,
 	struct vm_area_struct tmp_vma;
 	unsigned long ret;
 
-        unsigned long address = (unsigned long)vmf->virtual_address;
-
 	mutex_lock(&vi->vm_mutex);
 	tmp_vma = *vma;
 	tmp_vma.vm_private_data = vi->bo;
-	ret = drm_bo_vm_nopfn(&tmp_vma, address);
+	ret = drm_bo_vm_nopfn(&tmp_vma, vmf);
 	mutex_unlock(&vi->vm_mutex);
 	return ret;
 }
