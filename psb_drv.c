@@ -55,6 +55,8 @@ int psb_init_yres;
 extern int SII_1392;
 #endif
 
+MODULE_FIRMWARE("msvdx_fw.bin");
+
 MODULE_PARM_DESC(debug, "Enable debug output");
 MODULE_PARM_DESC(clock_gating, "clock gating");
 MODULE_PARM_DESC(no_fb, "Disable FBdev");
