@@ -265,7 +265,8 @@ static int psb_do_init(struct drm_device *dev)
 
 	int ret = -ENOMEM;
 
-	DRM_ERROR("Debug is 0x%08x\n", drm_psb_debug);
+	if (drm_psb_debug)
+		DRM_ERROR("Debug is 0x%08x\n", drm_psb_debug);
 
 	dev_priv->ta_mem_pages =
 	    PSB_ALIGN_TO(drm_psb_ta_mem_size * 1024, PAGE_SIZE) >> PAGE_SHIFT;
