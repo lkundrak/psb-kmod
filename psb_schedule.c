@@ -824,6 +824,11 @@ static void psb_dispatch_raster(struct drm_psb_private *dev_priv,
 	uint32_t flags;
 	uint32_t mask;
 
+	if (!task) {
+		DRM_ERROR("Null task passed to psb_dispatch_raster().\n");
+		return;
+	}
+
 	task->reply_flags |= reply_flag;
 	flags = task->reply_flags;
 	mask = PSB_RF_FIRE_RASTER;
