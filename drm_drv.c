@@ -649,7 +649,7 @@ long drm_unlocked_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 
 	if (cmd & IOC_IN) {
 		if (copy_from_user(kdata, (void __user *)arg,
-				   _IOC_SIZE(cmd)) != 0) {
+                                  _IOC_SIZE(cmd) & 0x1ff) != 0) {
 			retcode = -EACCES;
 			goto err_i1;
 		}
