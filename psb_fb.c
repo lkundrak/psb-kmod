@@ -888,9 +888,17 @@ int psbfb_kms_off_ioctl(struct drm_device *dev, void *data,
 {
 	int ret;
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,38)
+	console_lock();
+#else
 	acquire_console_sem();
+#endif
 	ret = psbfb_kms_off(dev, 0);
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,38)
+	console_unlock();
+#else
 	release_console_sem();
+#endif
 
 	return ret;
 }
@@ -967,9 +975,17 @@ int psbfb_kms_on_ioctl(struct drm_device *dev, void *data,
 {
 	int ret;
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,38)
+	console_lock();
+#else
 	acquire_console_sem();
+#endif
 	ret = psbfb_kms_on(dev, 0);
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,38)
+	console_unlock();
+#else
 	release_console_sem();
+#endif
 #ifdef SII_1392_WA
 	if((SII_1392 != 1) || (drm_psb_no_fb==0))
 		drm_disable_unused_functions(dev);
@@ -981,16 +997,32 @@ int psbfb_kms_on_ioctl(struct drm_device *dev, void *data,
 
 void psbfb_suspend(struct drm_device *dev)
 {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,38)
+	console_lock();
+#else
 	acquire_console_sem();
+#endif
 	psbfb_kms_off(dev, 1);
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,38)
+	console_unlock();
+#else
 	release_console_sem();
+#endif
 }
 
 void psbfb_resume(struct drm_device *dev)
 {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,38)
+	console_lock();
+#else
 	acquire_console_sem();
+#endif
 	psbfb_kms_on(dev, 1);
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,38)
+	console_unlock();
+#else
 	release_console_sem();
+#endif
 #ifdef SII_1392_WA
 	if((SII_1392 != 1) || (drm_psb_no_fb==0))
 		drm_disable_unused_functions(dev);

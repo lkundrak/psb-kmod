@@ -985,7 +985,11 @@ static struct drm_driver driver = {
 		 .owner = THIS_MODULE,
 		 .open = drm_open,
 		 .release = psb_release,
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,38)
+		 .unlocked_ioctl = drm_unlocked_ioctl,
+#else
 		 .ioctl = drm_ioctl,
+#endif
 		 .mmap = drm_mmap,
 		 .poll = psb_poll,
 		 .fasync = drm_fasync,
