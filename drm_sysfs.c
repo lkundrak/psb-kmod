@@ -168,7 +168,7 @@ int drm_sysfs_device_add(struct drm_device *dev, struct drm_head *head)
 	 * yet...
 	 */
 	/* dev->dev.devt = head->device; */
-	snprintf(dev->dev.bus_id, BUS_ID_SIZE, "card%d", head->minor);
+	dev_set_name(&dev->dev, "card%d", head->minor);
 
 	err = device_register(&dev->dev);
 	if (err) {
