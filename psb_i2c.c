@@ -36,6 +36,8 @@
 #include "intel_drv.h"
 #include "psb_drv.h"
 
+#define I2C_HW_B_INTELFB 0x010021; /* intel framebuffer driver */
+
 /*
  * Intel GPIO access functions
  */
