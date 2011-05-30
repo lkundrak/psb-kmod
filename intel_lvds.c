@@ -801,7 +801,14 @@ void intel_lvds_init(struct drm_device *dev)
 
 	if ((blc_type == BLC_I2C_TYPE) || (blc_type == BLC_PWM_TYPE)){	
 		/* add /sys/class/backlight interface as standard */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,34)
+		struct backlight_properties props;
+		memset(&props, 0, sizeof(struct backlight_properties));
+		props.max_brightness = BRIGHTNESS_MAX_LEVEL;
+		psbbl_device = backlight_device_register("psblvds", &dev->pdev->dev, dev, &psbbl_ops, &props);
+#else
 		psbbl_device = backlight_device_register("psblvds", &dev->pdev->dev, dev, &psbbl_ops);
+#endif
 		if (psbbl_device){
 #if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,20)
 			down(&psbbl_device->sem);
